@@ -1,5 +1,4 @@
 # ModifiedHauffman
-This is the compression code and it will be updated soon with the decompression
 
 Test case for the code
 
