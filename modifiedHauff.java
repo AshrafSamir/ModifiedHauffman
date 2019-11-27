@@ -2,30 +2,60 @@ import java.util.*;
 
 public class modifiedHauff {
 
-    Map<String,String> table = new HashMap<String,String>();
+    private Map<String,String> table = new HashMap<String,String>();
+    private Map<Character, String> shortCodeComp= new HashMap<Character, String>();
+    private Map<String, Character> shortCodeDecomp= new HashMap<String, Character>();
+    Map<String,String> decompTable= new HashMap<String,String>();
 
     public static void main(String[] args) {
 
+
         modifiedHauff caller = new modifiedHauff();
-
-
         Scanner input = new Scanner(System.in);
+        input.useLocale( Locale.US );
+
         ArrayList<Node> arr = new ArrayList<>();
+        ArrayList<String> others = new ArrayList<>();
         String st;
         String tmpS;
         String userInput;
-        double prob,tmpI;
-        int nTimes=13;
+        double prob,tmpI,tmpProb = 0.05;
+        int nTimes=9;
+        int choice = 1;
+        int count = 1;
 
-        input.useLocale( Locale.US );
+        for (int i = 0; i < 128; i++) {
+            String code = Integer.toBinaryString(i);
+            while (code.length() < 7)
+                code = '0' + code;
+
+            if(choice==1)
+                caller.shortCodeComp.put((char) i, code);
+            else caller.shortCodeDecomp.put(code,(char) i);
+        }
+
+
 
         for (int i=0;i<nTimes;i++){
 
             st = input.next();
             prob = input.nextDouble();
 
-            Node node = new Node(st, prob);
-            arr.add(node);
+            if(prob<=0.05){
+                tmpProb = 0.05;
+                others.add(st);
+                tmpProb *= count  ;
+                count++;
+            }
+            else {
+                Node node = new Node(st, prob);
+                arr.add(node);
+            }
+            if(i==nTimes-1){
+                Node node = new Node("Others", tmpProb);
+                arr.add(node);
+            }
+
         }
         arr.sort(Collections.reverseOrder());
         while (arr.size()>1){
@@ -46,14 +76,20 @@ public class modifiedHauff {
 
         //assert false;
         //caller.print(arr.get(0));
-        System.out.println(caller.table);
 
-        /*userInput = input.next();
+        System.out.println(caller.table);
+        userInput = input.next();
         for (int i=0;i<userInput.length();i++){
-            System.out.print(caller.table.get(String.valueOf(userInput.charAt(i)))+" ");
+            if(others.contains(String.valueOf(userInput.charAt(i)))){
+                System.out.print(caller.table.get("Others")+caller.shortCodeComp.get(userInput.charAt(i))+" ");
+            }
+            else{
+                System.out.print(caller.table.get(String.valueOf(userInput.charAt(i)))+" ");
+            }
         }
-         */
+
     }
+
 
     private void print(Node node){
 
@@ -75,17 +111,17 @@ public class modifiedHauff {
         } */
     }
     private void setCodeForTree(Node parent){
-        if (parent.getStr().length()==1){
+        if ((parent.getStr().length()==1)||(parent.getStr()=="Others")){
             table.put(parent.getStr(),parent.getCode());
         }
 
         if( parent.getRight() != null){
-            parent.getRight().setCode(parent.getCode()+"1");
+            parent.getRight().setCode(parent.getCode()+"0");
             setCodeForTree(parent.getRight());
         }
 
         if( parent.getLeft() != null){
-            parent.getLeft().setCode(parent.getCode()+"0");
+            parent.getLeft().setCode(parent.getCode()+"1");
             setCodeForTree(parent.getLeft());
         }
     }
